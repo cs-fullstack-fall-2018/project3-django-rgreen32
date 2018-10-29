@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+
+{% block content %}
+{% if user.is_authenticated %}
+<style>
+    th, td {
+        padding: 15px;
+    }
+</style>
+
+<h1>Welcome back {{user.username}}</h1>
+{% if account %}
+<h1>Checking: ${{account.balance}} </h1>
+<h1>Savings: ${{account.emergency_fund}}</h1>
+{% endif %}
+<table>
+    <tr>
+        <th>Checking/Savings</th>
+        <th>Widthdrawl/Deposit</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Date</th>
+    </tr>
+{% for item in history%}
+
+    <tr>
+    <td>{{item.account_type}}:</td>
+        <td>{{item.widthdrawlorDeposit}}</td>
+        <td>${{item.amount}}</td>
+        <td>{{item.name}}</td>
+        <td>{{item.transaction_date}}</td>
+    </tr>
+{% endfor %}
+</table>
+{% else %}
+<h2>You are not logged in</h2>
+{% endif %}
+{% endblock%}

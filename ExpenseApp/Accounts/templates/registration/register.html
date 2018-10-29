@@ -1,0 +1,21 @@
+{% extends "../accounts/base.html"%}
+
+{% block content %}
+<div>
+<form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+
+    {% if forms.errors %}
+    <p>There are errors in the form</p>
+    {% endif %}
+    <div>
+    {{ form }}
+       </div>
+
+    <div>
+    {{ form2 }}
+    </div>
+    <input type="submit" value="Register">
+</form>
+</div>
+{% endblock %}
