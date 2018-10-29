@@ -12,34 +12,31 @@ from django.utils import timezone
 
 def index(request):
     if request.user.id:
-        print(request.user.id)
         account = get_object_or_404(Account, User_id=request.user.id)
-        print(account.activity_set.all())
-        print(account.balance)
+
         history = account.activity_set.all()
         context = {
             'account': account,
-            'history': history
+            'history': reversed(history)
         }
+
         return render(request, 'accounts/index.html', context)
     else:
         return render(request, 'accounts/welcome.html')
 
+
 def register(request):
-    print("here")
+
     if request.method == "POST":
         form = UserCreationForm(request.POST)
-        print("here in if")
+
         if form.is_valid():
             form.save()
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password1"]
             user = authenticate(username=username, password=password)
             auth_login(request, user)
-            print('here')
-            # user.account_set.create(balance='1111')
-            print("it worked now")
-            #account = get_object_or_404(Account, User_id=user.id)
+
             user.account_set.create(balance=request.POST["checking_balance"], emergency_fund=request.POST["savings_balance"])
             return redirect('index')
 
@@ -54,7 +51,7 @@ def deposit(request):
     if request.method == "POST":
         name = request.POST['name']
         account = get_object_or_404(Account, User_id=request.user.id)
-        depositAmount = int(request.POST["deposit_amount"])
+        depositAmount = float(request.POST["deposit_amount"])
         account_type = request.POST["account_type"]
         if account_type == 'Checking':
             Account.objects.select_for_update().filter(User_id=request.user.id).update(balance=int(account.balance) + depositAmount)
@@ -66,7 +63,6 @@ def deposit(request):
         return redirect('index')
     else:
         form = DepositForm()
-        # context = {'form', form}
         return render(request, 'accounts/deposit.html', {'form': form})
 
 
@@ -75,7 +71,7 @@ def widthdraw(request):
         name = request.POST['name']
         account = get_object_or_404(Account, User_id=request.user.id)
         account_type = request.POST["account_type"]
-        widthdrawAmount = int(request.POST["widthdraw_amount"])
+        widthdrawAmount = float(request.POST["widthdraw_amount"])
         if account_type == 'Checking':
             Account.objects.select_for_update().filter(User_id=request.user.id).update(balance=int(account.balance) - widthdrawAmount)
         elif account_type == 'Savings':
@@ -85,12 +81,10 @@ def widthdraw(request):
         return redirect('index')
     else:
         form = WidthdrawForm()
-        # context = {'form', form}
         return render(request, 'accounts/widthdraw.html', {'form': form})
 
 
 def logout(request):
-    print(request.user.is_authenticated)
     auth_logout(request)
     return render(request, 'accounts/welcome.html')
 
